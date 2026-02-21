@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: almeer-pair
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: node index.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: BOT_NAME
+        value: ALMEER XMD
+      - key: NODE_VERSION
+        value: 20.18.0
