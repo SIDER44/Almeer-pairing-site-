@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALMEER XMD — Session Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060612;
+      --surface: #0d0d22;
+      --border: #1a1a3e;
+      --accent: #00f5ff;
+      --accent2: #7c3aed;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --success: #00ff88;
+      --error: #ff4466;
+      --warning: #ffaa00;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .bg-grid {
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .bg-glow {
+      position: fixed; width: 500px; height: 500px;
+      border-radius: 50%; filter: blur(120px);
+      pointer-events: none; z-index: 0; opacity: 0.12;
+    }
+
+    .glow-1 { background: var(--accent); top: -150px; right: -150px; }
+    .glow-2 { background: var(--accent2); bottom: -150px; left: -150px; }
+
+    .container {
+      position: relative; z-index: 1;
+      max-width: 540px; margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* HEADER */
+    .header { text-align: center; margin-bottom: 40px; animation: fadeDown 0.6s ease; }
+
+    .logo {
+      display: inline-flex; align-items: center;
+      gap: 12px; margin-bottom: 16px;
+    }
+
+    .logo-icon {
+      width: 50px; height: 50px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 14px; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 24px; box-shadow: 0 0 25px rgba(0,245,255,0.4);
+    }
+
+    .logo-text {
+      font-size: 26px; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .header h1 {
+      font-size: 38px; font-weight: 800;
+      letter-spacing: -1px; margin-bottom: 10px;
+    }
+
+    .header h1 span { color: var(--accent); }
+    .header p { color: var(--muted); font-family: 'Space Mono', monospace; font-size: 14px; }
+
+    /* CARD */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 24px; padding: 32px; margin-bottom: 16px;
+      position: relative; overflow: hidden;
+      animation: fadeUp 0.6s ease 0.2s both;
+    }
+
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.5;
+    }
+
+    .card-title {
+      font-size: 17px; font-weight: 700; margin-bottom: 6px;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .dot {
+      width: 8px; height: 8px; background: var(--accent);
+      border-radius: 50%; box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    .card-sub {
+      color: var(--muted); font-size: 13px;
+      font-family: 'Space Mono', monospace;
+      margin-bottom: 24px; line-height: 1.6;
+    }
+
+    /* INPUT */
+    .label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 1.5px; margin-bottom: 10px;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .input-wrap { position: relative; }
+
+    .prefix {
+      position: absolute; left: 16px; top: 50%;
+      transform: translateY(-50%); font-size: 18px; z-index: 1;
+    }
+
+    input[type=tel] {
+      width: 100%; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 16px 16px 16px 48px; color: var(--text);
+      font-size: 18px; font-family: 'Space Mono', monospace;
+      letter-spacing: 2px; outline: none; transition: all 0.2s;
+    }
+
+    input[type=tel]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,245,255,0.1);
+    }
+
+    input[type=tel]::placeholder { color: var(--muted); letter-spacing: 1px; }
+
+    .hint {
+      font-size: 11px; color: var(--muted);
+      margin-top: 8px; font-family: 'Space Mono', monospace;
+    }
+
+    /* BUTTON */
+    .btn {
+      width: 100%; padding: 17px; border: none;
+      border-radius: 14px; font-size: 15px; font-weight: 700;
+      font-family: 'Syne', sans-serif; cursor: pointer;
+      transition: all 0.2s; margin-top: 16px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #009bb5);
+      color: #000; box-shadow: 0 8px 25px rgba(0,245,255,0.25);
+    }
+
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(0,245,255,0.35); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--success), #00bb66);
+      color: #000; box-shadow: 0 8px 25px rgba(0,255,136,0.25);
+    }
+
+    .btn-success:hover { transform: translateY(-2px); }
+
+    .btn-copy {
+      background: transparent; border: 1px solid var(--accent);
+      color: var(--accent); margin-top: 10px;
+    }
+
+    .btn-copy:hover { background: rgba(0,245,255,0.08); }
+
+    /* CODE BOX */
+    .code-box {
+      background: var(--bg); border: 2px solid var(--accent);
+      border-radius: 16px; padding: 24px; text-align: center;
+      margin: 20px 0; animation: glowPulse 2s infinite alternate;
+    }
+
+    @keyframes glowPulse {
+      from { box-shadow: 0 0 15px rgba(0,245,255,0.1); }
+      to { box-shadow: 0 0 35px rgba(0,245,255,0.3); }
+    }
+
+    .code-label {
+      font-size: 11px; text-transform: uppercase;
+      letter-spacing: 2px; color: var(--muted);
+      margin-bottom: 12px; font-family: 'Space Mono', monospace;
+    }
+
+    .code-value {
+      font-size: 44px; font-weight: 700;
+      font-family: 'Space Mono', monospace;
+      color: var(--accent); letter-spacing: 8px;
+      text-shadow: 0 0 20px rgba(0,245,255,0.5);
+    }
+
+    .code-timer {
+      font-size: 12px; color: var(--warning);
+      margin-top: 10px; font-family: 'Space Mono', monospace;
+    }
+
+    /* STATUS */
+    .status-box {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; border-radius: 12px;
+      font-size: 13px; font-family: 'Space Mono', monospace;
+      margin: 14px 0;
+    }
+
+    .status-pending {
+      background: rgba(255,170,0,0.08);
+      border: 1px solid rgba(255,170,0,0.25);
+      color: var(--warning);
+    }
+
+    .status-connected {
+      background: rgba(0,255,136,0.08);
+      border: 1px solid rgba(0,255,136,0.25);
+      color: var(--success);
+    }
+
+    .spinner-sm {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,170,0,0.2);
+      border-top: 2px solid var(--warning);
+      border-radius: 50%; animation: spin 1s linear infinite;
+      flex-shrink: 0;
+    }
+
+    /* STEPS */
+    .steps { display: flex; flex-direction: column; gap: 10px; margin: 18px 0; }
+
+    .step {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 16px; background: var(--bg);
+      border-radius: 12px; border: 1px solid var(--border);
+      transition: all 0.3s; font-size: 14px;
+    }
+
+    .step.active { border-color: var(--accent); background: rgba(0,245,255,0.04); }
+    .step.done { border-color: var(--success); background: rgba(0,255,136,0.04); }
+
+    .step-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--border); display: flex;
+      align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      font-family: 'Space Mono', monospace; flex-shrink: 0;
+    }
+
+    .step.active .step-num { background: var(--accent); color: #000; }
+    .step.done .step-num { background: var(--success); color: #000; }
+
+    /* SESSION STRING */
+    .session-box {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; margin-top: 20px;
+    }
+
+    .session-label {
+      font-size: 11px; text-transform: uppercase;
+      letter-spacing: 1.5px; color: var(--muted);
+      margin-bottom: 12px; font-family: 'Space Mono', monospace;
+    }
+
+    .session-id {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px; color: var(--accent);
+      word-break: break-all; line-height: 1.6;
+      max-height: 120px; overflow-y: auto;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .session-id:hover { border-color: var(--accent); }
+
+    /* SUCCESS */
+    .success-icon {
+      font-size: 56px; text-align: center;
+      margin-bottom: 14px;
+      animation: bounce 1s ease infinite alternate;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-8px); }
+    }
+
+    .success-title {
+      font-size: 26px; font-weight: 800;
+      color: var(--success); text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .success-sub {
+      color: var(--muted); font-size: 13px;
+      font-family: 'Space Mono', monospace;
+      text-align: center; margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    /* INSTRUCTIONS */
+    .instructions {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px; margin-top: 16px;
+    }
+
+    .inst-title {
+      font-size: 11px; text-transform: uppercase;
+      letter-spacing: 1.5px; color: var(--muted);
+      margin-bottom: 14px; font-family: 'Space Mono', monospace;
+    }
+
+    .inst-step {
+      display: flex; gap: 12px; margin-bottom: 10px;
+      font-size: 13px; font-family: 'Space Mono', monospace;
+      line-height: 1.5; color: var(--text);
+    }
+
+    .inst-step span:first-child { color: var(--accent); font-weight: 700; flex-shrink: 0; }
+
+    code {
+      background: rgba(0,245,255,0.1); color: var(--accent);
+      padding: 2px 6px; border-radius: 4px; font-size: 12px;
+    }
+
+    /* BADGE */
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.5px; margin-bottom: 4px;
+    }
+
+    .badge-blue { background: rgba(0,245,255,0.1); color: var(--accent); border: 1px solid rgba(0,245,255,0.2); }
+    .badge-purple { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+
+    /* FOOTER */
+    .footer {
+      text-align: center; margin-top: 40px;
+      color: var(--muted); font-size: 12px;
+      font-family: 'Space Mono', monospace;
+      animation: fadeUp 0.6s ease 0.4s both;
+    }
+
+    .footer a { color: var(--accent); text-decoration: none; }
+
+    /* ANIMATIONS */
+    @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+    .hidden { display: none !important; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 30px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--success); color: #000;
+      padding: 12px 24px; border-radius: 12px;
+      font-size: 14px; font-weight: 700;
+      font-family: 'Space Mono', monospace;
+      transition: transform 0.3s ease; z-index: 999;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 480px) {
+      .header h1 { font-size: 28px; }
+      .card { padding: 22px; }
+      .code-value { font-size: 32px; letter-spacing: 5px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow glow-1"></div>
+<div class="bg-glow glow-2"></div>
+
+<div class="toast" id="toast">✅ Copied!</div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <div class="logo-text">ALMEER XMD</div>
+    </div>
+    <div style="margin-bottom:10px;">
+      <span class="badge badge-blue">● Pterodactyl Ready</span>
+      <span class="badge badge-purple">● Render Ready</span>
+    </div>
+    <h1>Session <span>Generator</span></h1>
+    <p>// Pair WhatsApp → Get Session ID → Deploy Bot</p>
+  </div>
+
+  <!-- STEP 1: PHONE -->
+  <div class="card" id="step-phone">
+    <div class="card-title"><div class="dot"></div>Enter Your Number</div>
+    <p class="card-sub">
+      Enter the WhatsApp number to link with your bot.<br>
+      Include country code — no + sign needed.
+    </p>
+
+    <label class="label">Phone Number</label>
+    <div class="input-wrap">
+      <span class="prefix">📱</span>
+      <input type="tel" id="phone-input" placeholder="2348100000000" maxlength="15"/>
+    </div>
+    <p class="hint">🌍 Examples: 2348100000000 · 12025551234 · 447911123456</p>
+
+    <button class="btn btn-primary" id="get-btn" onclick="getCode()">
+      ⚡ Generate Pairing Code
+    </button>
+  </div>
+
+  <!-- STEP 2: CODE -->
+  <div class="card hidden" id="step-code">
+    <div class="card-title"><div class="dot"></div>Enter Code in WhatsApp</div>
+    <p class="card-sub">
+      Open WhatsApp → ⋮ Menu → Linked Devices → Link a Device → Link with phone number
+    </p>
+
+    <div class="code-box">
+      <div class="code-label">Your Pairing Code</div>
+      <div class="code-value" id="pair-code">----</div>
+      <div class="code-timer" id="timer-text">⏱️ Expires in 60 seconds</div>
+    </div>
+
+    <div class="steps">
+      <div class="step active" id="s1">
+        <div class="step-num">1</div>
+        <span>Open <strong>WhatsApp</strong> on your phone</span>
+      </div>
+      <div class="step" id="s2">
+        <div class="step-num">2</div>
+        <span>Tap ⋮ → <strong>Linked Devices</strong></span>
+      </div>
+      <div class="step" id="s3">
+        <div class="step-num">3</div>
+        <span>Tap <strong>Link a Device</strong> → Link with phone number</span>
+      </div>
+      <div class="step" id="s4">
+        <div class="step-num">4</div>
+        <span>Type the code above → Tap <strong>Next</strong></span>
+      </div>
+    </div>
+
+    <div class="status-box status-pending" id="wait-status">
+      <div class="spinner-sm"></div>
+      <span>Waiting for WhatsApp to connect...</span>
+    </div>
+  </div>
+
+  <!-- STEP 3: SUCCESS + SESSION ID -->
+  <div class="card hidden" id="step-done">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">Connected!</div>
+    <div class="success-sub">
+      Your session ID is ready.<br>
+      Copy it and paste into your bot config.
+    </div>
+
+    <div class="session-box">
+      <div class="session-label">📋 Your Session ID — Click to Copy</div>
+      <div class="session-id" id="session-display" onclick="copySession()">
+        Loading session...
+      </div>
+      <button class="btn btn-success" onclick="copySession()">
+        📋 Copy Session ID
+      </button>
+    </div>
+
+    <div class="instructions">
+      <div class="inst-title">📌 How to use on Pterodactyl</div>
+      <div class="inst-step">
+        <span>01</span><span>Copy the Session ID above</span>
+      </div>
+      <div class="inst-step">
+        <span>02</span><span>Go to your Pterodactyl panel → Your bot server</span>
+      </div>
+      <div class="inst-step">
+        <span>03</span><span>Click <strong>Startup</strong> tab → Find <code>SESSION_ID</code> variable</span>
+      </div>
+      <div class="inst-step">
+        <span>04</span><span>Paste the Session ID → Save → Start server</span>
+      </div>
+      <div class="inst-step">
+        <span>05</span><span>Bot connects automatically — no QR needed! ✅</span>
+      </div>
+    </div>
+
+    <div class="instructions" style="margin-top:10px;">
+      <div class="inst-title">📌 How to use on Render</div>
+      <div class="inst-step">
+        <span>01</span><span>Copy the Session ID above</span>
+      </div>
+      <div class="inst-step">
+        <span>02</span><span>Go to Render → Your bot service → <strong>Environment</strong></span>
+      </div>
+      <div class="inst-step">
+        <span>03</span><span>Add variable: <code>SESSION_ID</code> = paste session ID</span>
+      </div>
+      <div class="inst-step">
+        <span>04</span><span>Click <strong>Save Changes</strong> → Auto deploys ✅</span>
+      </div>
+    </div>
+
+    <button class="btn btn-copy" onclick="location.reload()">
+      🔄 Generate Another Session
+    </button>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>🤖 <strong>ALMEER XMD</strong> Session Generator</p>
+    <p style="margin-top:6px;">Works with Pterodactyl · Render · Railway · VPS</p>
+  </div>
+
+</div>
+
+<script>
+  let sessionId = null;
+  let pollInterval = null;
+  let timerInterval = null;
+
+  async function getCode() {
+    const phone = document.getElementById('phone-input').value.replace(/[^0-9]/g, '');
+
+    if (!phone || phone.length < 10) {
+      alert('❌ Enter a valid phone number with country code!\nExample: 2348100000000');
+      return;
+    }
+
+    const btn = document.getElementById('get-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Generating...';
+
+    try {
+      const res = await fetch('/api/pair', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone })
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        alert('❌ ' + data.message);
+        btn.disabled = false;
+        btn.textContent = '⚡ Generate Pairing Code';
+        return;
+      }
+
+      sessionId = data.sessionId;
+      document.getElementById('pair-code').textContent = data.code;
+      document.getElementById('step-phone').classList.add('hidden');
+      document.getElementById('step-code').classList.remove('hidden');
+
+      startTimer(60);
+
+      // Animate steps
+      setTimeout(() => document.getElementById('s2').classList.add('active'), 800);
+      setTimeout(() => document.getElementById('s3').classList.add('active'), 1600);
+      setTimeout(() => document.getElementById('s4').classList.add('active'), 2400);
+
+      startPolling();
+
+    } catch (err) {
+      alert('❌ Error: ' + err.message);
+      btn.disabled = false;
+      btn.textContent = '⚡ Generate Pairing Code';
+    }
+  }
+
+  function startTimer(secs) {
+    let left = secs;
+    const el = document.getElementById('timer-text');
+    clearInterval(timerInterval);
+
+    timerInterval = setInterval(() => {
+      left--;
+      if (left > 0) {
+        el.textContent = `⏱️ Expires in ${left} seconds`;
+      } else {
+        clearInterval(timerInterval);
+        el.style.color = 'var(--error)';
+        el.textContent = '⚠️ Code expired — reload page to try again';
+      }
+    }, 1000);
+  }
+
+  function startPolling() {
+    clearInterval(pollInterval);
+    pollInterval = setInterval(async () => {
+      if (!sessionId) return;
+
+      try {
+        const res = await fetch(`/api/status/${sessionId}`);
+        const data = await res.json();
+
+        if (data.status === 'connected') {
+          clearInterval(pollInterval);
+          clearInterval(timerInterval);
+
+          // Mark steps done
+          ['s1','s2','s3','s4'].forEach(id => {
+            const el = document.getElementById(id);
+            el.classList.remove('active');
+            el.classList.add('done');
+            el.querySelector('.step-num').textContent = '✓';
+          });
+
+          // Update status box
+          const sb = document.getElementById('wait-status');
+          sb.className = 'status-box status-connected';
+          sb.innerHTML = '<span>✅</span><sp
